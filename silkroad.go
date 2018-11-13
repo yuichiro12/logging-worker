@@ -7,19 +7,23 @@ import (
 )
 
 type Logger struct {
-	Separator    string
+	w         io.Writer
+	errChan   chan error
+	Separator string
 }
 
-func NewLogger(sep string) Logger {
+func NewLogger(w io.Writer, errChan chan error, sep string) Logger {
 	return Logger{
+		w:         w,
+		errChan:   errChan,
 		Separator: sep,
 	}
 }
 
-func (l Logger) LogRow(w io.Writer, rc <-chan []string, ec chan<- error) {
+func (l Logger) LogRow(rc <-chan []string) {
 	for r := range rc {
-		if _, err := w.Write([]byte(strings.Join(r, l.Separator) + "\n")); err != nil {
-			ec <- err
+		if _, err := l.w.Write([]byte(strings.Join(r, l.Separator) + "\n")); err != nil {
+			l.errChan <- err
 		}
 	}
 }
