@@ -1,4 +1,4 @@
-package silkroad
+package logworker
 
 import (
 	"io"
